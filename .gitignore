@@ -1,0 +1,23 @@
+# ===== AEGIS POC =====
+# Clés privées (CRITIQUE - ne jamais committer)
+poc/keys/*.private.pem
+*.private.pem
+*.key
+
+# Clés de test (OK de committer les publiques)
+# poc/keys/*.public.pem  # Commenté = on peut committer les clés publiques de demo
+
+# Environnements virtuels Python
+poc/venv/
+poc/.venv/
+poc/__pycache__/
+poc/*.pyc
+
+# Licenses générées (optionnel - peut être commité pour exemples)
+# poc/licenses/*.jwt
+
+# Fichiers temporaires
+poc/.pytest_cache/
+poc/.coverage
+poc/htmlcov/
+
