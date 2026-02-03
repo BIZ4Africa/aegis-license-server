@@ -1,0 +1,35 @@
+name: AEGIS POC Tests
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+    paths:
+      - 'poc/**'
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test-poc:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        cd poc/
+        pip install -r requirements.txt
+    
+    - name: Run POC integration tests
+      run: |
+        cd poc/
+        python test_integration.py
+    
+    - name: Check for private keys in commits
+      run: |
+        ! git diff --cached | grep -i "BEGIN PRIVATE KEY"

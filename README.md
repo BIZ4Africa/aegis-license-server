@@ -135,6 +135,33 @@ Breaking changes are tracked via:
 Access is restricted according to commercial agreements.
 
 ---
+## 🧪 Proof of Concept (POC)
+
+Un POC fonctionnel validant l'architecture AEGIS est disponible dans `poc/`.
+
+### Quick Start
+```bash
+cd poc/
+pip install -r requirements.txt
+python test_integration.py
+```
+
+**Résultat attendu :** 21 tests passent ✅
+
+### Documentation
+
+- **POC README :** `poc/README.md`
+- **ADR-0001 :** `docs/adr/ADR-0001-license-signing.md`
+- **Quick Start :** Voir fichiers téléchargés
+
+### Prochaines Étapes
+
+Le POC valide les concepts de base. Pour la production :
+1. API REST (FastAPI) → `server/`
+2. Client Odoo → repository séparé
+3. Déploiement → `deploy/`
+
+Voir roadmap complète dans la documentation POC.
 
 ## 10. Maintainer
 
