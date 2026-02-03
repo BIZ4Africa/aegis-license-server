@@ -1,0 +1,16 @@
+# AEGIS Key Metadata
+Key ID: aegis-2026-01
+Algorithm: Ed25519 (EdDSA)
+Generated: 2026-02-03T19:10:14.366242Z
+Private Key: keys/aegis-2026-01.private.pem
+Public Key: keys/aegis-2026-01.public.pem
+
+⚠️  SECURITY NOTES:
+- Keep the private key SECRET and SECURE
+- The private key is NOT encrypted in this POC
+- In production, use a KMS or encrypt with a strong passphrase
+- Backup both keys securely (encrypted backup recommended)
+- Public key will be embedded in Odoo client modules
+
+Public Key Size: 113 bytes
+Private Key Size: 119 bytes
