@@ -1,0 +1,81 @@
+# AEGIS License Server - Git Ignore
+
+# ===== CRITICAL SECURITY =====
+# NEVER commit private keys!
+keys/*.private.pem
+*.private.pem
+*.key
+.env
+.env.local
+.env.*.local
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ===== Virtual Environments =====
+venv/
+env/
+ENV/
+.venv
+
+# ===== IDEs =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ===== Testing =====
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# ===== Databases =====
+*.db
+*.sqlite3
+*.sql
+
+# ===== Logs =====
+logs/
+*.log
+*.log.*
+
+# ===== Alembic =====
+# Keep versions/ directory but ignore its contents initially
+# alembic/versions/*.py
+
+# ===== Docker =====
+.dockerignore
+
+# ===== OS =====
+Thumbs.db
+.DS_Store
+
+# ===== Temporary Files =====
+*.tmp
+*.temp
+*.bak
+*.swp
