@@ -1,4 +1,4 @@
-# AEGIS License Server v1.0
+# AEGIS License Server v0.8.0
 
 Production-ready license management API for AEGIS-protected Odoo modules.
 
@@ -446,5 +446,5 @@ For support: tech@biz4a.com
 
 ---
 
-**Version:** 1.0.0  
-**Last Updated:** 2026-02-03
+**Version:** 0.8.0
+**Last Updated:** 2026-02-10

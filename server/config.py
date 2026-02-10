@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     
     # ===== Application =====
     app_name: str = Field(default="AEGIS License Server", description="Application name")
-    app_version: str = Field(default="1.0.0", description="API version")
+    app_version: str = Field(default="0.8.0", description="API version")
     debug: bool = Field(default=False, description="Debug mode")
     environment: str = Field(default="production", description="Environment: development, staging, production")
     
