@@ -1,171 +1,450 @@
-# AEGIS – License Control Framework (Server)
+# AEGIS License Server v1.0
 
-AEGIS is a proprietary licensing and enforcement framework developed by **Business Solutions For Africa (BIZ4A)**.
-It is designed to protect high-value Odoo modules that embed significant intellectual property, regulatory logic,
-or domain-specific business intelligence.
+Production-ready license management API for AEGIS-protected Odoo modules.
 
-This repository contains:
-- the **AEGIS License Server** (license authority)
-- the **official project specifications** used as contractual and technical references
-
-AEGIS is intentionally designed **without relying on security by obscurity**.  
-Instead, it combines a strong legal foundation with robust, pragmatic technical enforcement.
+Built with **FastAPI**, **SQLAlchemy 2.0**, **PostgreSQL**, and **Ed25519** cryptographic signing.
 
 ---
 
-## 1. What is AEGIS?
+## 🚀 Quick Start
 
-AEGIS (Advanced Enforcement & Governance for Intellectual Software) is a dual-component system:
+### Prerequisites
 
-1. **License Server**
-   - Issues and signs license keys
-   - Manages license lifecycle (perpetual, subscription, demo)
-   - Optionally exposes validation endpoints
+- Python 3.11+
+- PostgreSQL 15+
+- Docker & Docker Compose (optional)
 
-2. **Odoo Client (separate repository)**
-   - Embedded into proprietary Odoo modules
-   - Verifies license signatures (offline-first)
-   - Enforces license rules at install time and runtime
+### Option 1: Docker Compose (Recommended)
 
-This repository focuses on **component #1**.
-
----
-
-## 2. Licensing Model
-
-All AEGIS-protected modules are distributed under:
-
-- **Odoo Proprietary License v1 (OPL-1)**
-
-OPL-1 is extended by a **BIZ4A Commercial License Addendum**, which defines:
-- license duration
-- version eligibility
-- demo and trial rules
-- maintenance and upgrade conditions
-
-The addendum is documented in the project specifications.
-
----
-
-## 3. Key Design Principles
-
-- Proprietary, commercial licensing
-- Offline-first validation (mandatory)
-- Optional online validation
-- Structural enforcement (dependency-based)
-- Odoo.sh and on-premise compatibility
-- Minimal friction for legitimate customers
-
-AEGIS does **not** attempt DRM-level protection.
-
----
-
-## 4. Repository Structure
-
-```
-aegis-license-server/
-├─ README.md
-├─ LICENSE
-├─ docs/
-│  ├─ specs/        # Functional & technical specifications
-│  ├─ adr/          # Architecture Decision Records
-│  └─ diagrams/     # Reference diagrams (Mermaid)
-├─ server/          # License server implementation
-├─ deploy/          # Deployment assets (Docker, etc.)
-└─ .github/         # CI, workflows, issue templates
-```
-
----
-
-## 5. Specifications
-
-All authoritative project specifications are located in:
-
-```
-docs/specs/
-```
-
-They include:
-- objectives and scope
-- functional and non-functional requirements
-- licensing model (OPL-1 + addendum)
-- architecture and trust model
-- license payload schema
-- acceptance criteria
-- threat model
-
-These documents are part of the **formal deliverables** of the AEGIS project.
-
----
-
-## 6. Target Environments
-
-- Odoo.sh
-- On-premise Odoo deployments
-- Offline or low-connectivity environments
-
-No system-level dependencies are required.
-
----
-
-## 7. Security Model (Summary)
-
-- Private signing keys are stored **only** on the server
-- Public verification keys are embedded in the Odoo client
-- License payloads are immutable and signed
-- Tampering invalidates the license
-
----
-
-## 8. Project Status
-
-This repository is under active development.
-Breaking changes are tracked via:
-- GitHub Issues
-- ADRs
-- Tagged releases
-
----
-
-## 9. Related Repositories
-
-- **AEGIS Odoo Client** (license enforcement module)
-- Proprietary BIZ4A Odoo modules depending on AEGIS
-
-Access is restricted according to commercial agreements.
-
----
-## 🧪 Proof of Concept (POC)
-
-Un POC fonctionnel validant l'architecture AEGIS est disponible dans `poc/`.
-
-### Quick Start
 ```bash
-cd poc/
-pip install -r requirements.txt
-python test_integration.py
+# 1. Generate signing keys
+python scripts/generate_keys.py --key-id aegis-2026-01
+
+# 2. Start services
+cd deploy/
+docker-compose up -d
+
+# 3. Check health
+curl http://localhost:8000/health
 ```
 
-**Résultat attendu :** 21 tests passent ✅
+### Option 2: Local Development
 
-### Documentation
+```bash
+# 1. Install dependencies
+cd server/
+pip install -r requirements.txt
 
-- **POC README :** `poc/README.md`
-- **ADR-0001 :** `docs/adr/ADR-0001-license-signing.md`
-- **Quick Start :** Voir fichiers téléchargés
+# 2. Generate keys
+python ../scripts/generate_keys.py
 
-### Prochaines Étapes
+# 3. Configure environment
+cp ../.env.example ../.env
+# Edit .env with your database credentials
 
-Le POC valide les concepts de base. Pour la production :
-1. API REST (FastAPI) → `server/`
-2. Client Odoo → repository séparé
-3. Déploiement → `deploy/`
+# 4. Run database migrations
+alembic upgrade head
 
-Voir roadmap complète dans la documentation POC.
+# 5. Start server
+uvicorn server.main:app --reload
+```
 
-## 10. Maintainer
+API Documentation: http://localhost:8000/docs
 
-**Business Solutions For Africa (BIZ4A)**  
+---
+
+## 📋 Features
+
+### Core Capabilities
+
+✅ **License Management**
+- Issue perpetual, subscription, and demo licenses
+- Cryptographic JWT signing with Ed25519
+- Instance binding via fingerprints
+- License revocation
+
+✅ **Customer Management**
+- CRUD operations for customers
+- License assignment tracking
+- Activity status management
+
+✅ **Validation & Security**
+- Offline-first license verification
+- Signature tampering detection
+- Expiration enforcement
+- Version compatibility checks
+
+✅ **Audit & Monitoring**
+- Complete audit trail of all operations
+- Usage statistics and analytics
+- Health check endpoints
+
+### API Endpoints
+
+**Licenses:**
+- `POST /api/v1/licenses` - Issue a new license
+- `GET /api/v1/licenses/{id}` - Get license details
+- `GET /api/v1/licenses` - List licenses (with filters)
+- `POST /api/v1/licenses/validate` - Validate a license token
+- `DELETE /api/v1/licenses/{id}/revoke` - Revoke a license
+- `POST /api/v1/licenses/fingerprint` - Generate instance fingerprint
+
+**Customers:**
+- `POST /api/v1/customers` - Create customer
+- `GET /api/v1/customers/{id}` - Get customer
+- `GET /api/v1/customers` - List customers
+- `PATCH /api/v1/customers/{id}` - Update customer
+- `DELETE /api/v1/customers/{id}` - Delete customer
+
+**Admin:**
+- `GET /api/v1/admin/stats` - Server statistics
+- `GET /api/v1/admin/audit-logs` - Audit logs
+
+**System:**
+- `GET /health` - Health check
+- `GET /info` - Server information
+
+---
+
+## 🏗️ Architecture
+
+### Technology Stack
+
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **API Framework** | FastAPI 0.109 | REST API with automatic docs |
+| **Database** | PostgreSQL 15 | Relational data storage |
+| **ORM** | SQLAlchemy 2.0 | Database abstraction |
+| **Migrations** | Alembic | Schema versioning |
+| **Crypto** | PyJWT + Ed25519 | License signing |
+| **Validation** | Pydantic 2.5 | Request/response validation |
+| **Logging** | Structlog | Structured JSON logging |
+| **Server** | Uvicorn | ASGI server |
+
+### Database Schema
+
+```
+┌─────────────┐       ┌──────────────┐       ┌─────────────┐
+│  customers  │       │   licenses   │       │ audit_logs  │
+├─────────────┤       ├──────────────┤       ├─────────────┤
+│ id (PK)     │───┐   │ id (PK)      │   ┌───│ id (PK)     │
+│ name        │   └───│ customer_id  │───┘   │ license_id  │
+│ email       │       │ module_name  │       │ event_type  │
+│ company     │       │ license_type │       │ customer_id │
+│ is_active   │       │ status       │       │ event_data  │
+│ created_at  │       │ token (JWT)  │       │ created_at  │
+└─────────────┘       │ expires_at   │       └─────────────┘
+                      │ revoked_at   │
+                      └──────────────┘
+```
+
+### License JWT Structure
+
+**Header:**
+```json
+{
+  "alg": "EdDSA",
+  "typ": "JWT",
+  "kid": "aegis-2026-01"
+}
+```
+
+**Payload:**
+```json
+{
+  "jti": "uuid",
+  "iss": "https://license.biz4a.com",
+  "iat": 1738588800,
+  "exp": null,
+  "customer": {
+    "id": "CUST-001",
+    "name": "Acme Corp"
+  },
+  "module": {
+    "technical_name": "biz4a_payroll_drc",
+    "allowed_major_versions": ["17", "18"]
+  },
+  "license_type": "perpetual"
+}
+```
+
+---
+
+## 🔐 Security
+
+### Key Management
+
+**Private Key:**
+- Generated with Ed25519 algorithm
+- Stored in `keys/aegis-{year}-{version}.private.pem`
+- **CRITICAL:** Never commit to version control
+- Permissions: 0600 (owner read/write only)
+- Production: Use KMS (AWS KMS, Azure Key Vault, HashiCorp Vault)
+
+**Public Key:**
+- Stored in `keys/aegis-{year}-{version}.public.pem`
+- Distributed to Odoo clients
+- Can be safely committed to version control
+- Embedded in AEGIS client modules
+
+### Key Rotation
+
+```bash
+# Generate new keypair
+python scripts/generate_keys.py --key-id aegis-2027-01
+
+# Update .env
+KEY_ID=aegis-2027-01
+PRIVATE_KEY_PATH=keys/aegis-2027-01.private.pem
+
+# Restart server
+# Old licenses remain valid (verified with old public key)
+```
+
+### Environment Variables
+
+**Critical Security Settings:**
+
+```bash
+# Strong random secret (64+ characters)
+API_SECRET_KEY=$(python -c "import secrets; print(secrets.token_urlsafe(64))")
+
+# Database credentials
+DATABASE_URL=postgresql+asyncpg://user:STRONG_PASSWORD@host/db
+
+# Key paths
+PRIVATE_KEY_PATH=keys/aegis-2026-01.private.pem
+```
+
+---
+
+## 📊 Operations
+
+### Database Migrations
+
+```bash
+# Create a new migration
+alembic revision --autogenerate -m "description"
+
+# Apply migrations
+alembic upgrade head
+
+# Rollback last migration
+alembic downgrade -1
+
+# Show current version
+alembic current
+```
+
+### Health Monitoring
+
+```bash
+# Health check
+curl http://localhost:8000/health
+
+# Statistics
+curl -H "X-API-Key: your-key" http://localhost:8000/api/v1/admin/stats
+```
+
+### Logs
+
+```bash
+# Development (text format)
+LOG_FORMAT=text LOG_LEVEL=DEBUG uvicorn server.main:app
+
+# Production (JSON format)
+LOG_FORMAT=json LOG_LEVEL=INFO uvicorn server.main:app
+```
+
+---
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+pytest
+
+# With coverage
+pytest --cov=server --cov-report=html
+
+# Specific test file
+pytest tests/test_licenses.py -v
+```
+
+---
+
+## 📦 Deployment
+
+### Production Checklist
+
+- [ ] Generate strong API secret key
+- [ ] Configure secure database credentials
+- [ ] Set `ENVIRONMENT=production`
+- [ ] Set `DEBUG=false`
+- [ ] Store private keys in KMS or encrypted storage
+- [ ] Configure CORS origins
+- [ ] Enable rate limiting
+- [ ] Set up monitoring (Prometheus, Grafana)
+- [ ] Configure log aggregation (ELK, Loki)
+- [ ] Set up automated backups (database + keys)
+- [ ] Test disaster recovery procedures
+
+### Docker Production
+
+```bash
+# Build image
+docker build -f deploy/Dockerfile -t aegis-server:1.0 .
+
+# Run container
+docker run -d \
+  --name aegis-server \
+  -p 8000:8000 \
+  -e DATABASE_URL="postgresql+asyncpg://..." \
+  -e API_SECRET_KEY="..." \
+  -v /secure/keys:/app/keys:ro \
+  aegis-server:1.0
+```
+
+### Kubernetes
+
+See `deploy/kubernetes/` for manifests (TODO).
+
+---
+
+## 📖 API Usage Examples
+
+### Issue a Perpetual License
+
+```bash
+curl -X POST http://localhost:8000/api/v1/licenses \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-api-key" \
+  -d '{
+    "customer_id": "CUST-001",
+    "module_name": "biz4a_payroll_drc",
+    "allowed_major_versions": ["17", "18"],
+    "license_type": "perpetual"
+  }'
+```
+
+### Validate a License
+
+```bash
+curl -X POST http://localhost:8000/api/v1/licenses/validate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "token": "eyJhbGc...",
+    "module_name": "biz4a_payroll_drc",
+    "odoo_version": "17"
+  }'
+```
+
+### Revoke a License
+
+```bash
+curl -X DELETE http://localhost:8000/api/v1/licenses/{id}/revoke \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-api-key" \
+  -d '{
+    "reason": "Customer requested cancellation"
+  }'
+```
+
+---
+
+## 🛠️ Development
+
+### Project Structure
+
+```
+aegis-server/
+├── server/                  # Main application code
+│   ├── main.py             # FastAPI app
+│   ├── config.py           # Configuration
+│   ├── database.py         # Database connection
+│   ├── models.py           # SQLAlchemy models
+│   ├── schemas.py          # Pydantic schemas
+│   ├── services.py         # Business logic
+│   └── routers/            # API routes
+│       ├── health.py
+│       ├── licenses.py
+│       ├── customers.py
+│       └── admin.py
+├── alembic/                # Database migrations
+├── scripts/                # Utility scripts
+├── deploy/                 # Deployment files
+│   ├── Dockerfile
+│   └── docker-compose.yml
+├── tests/                  # Test suite
+└── keys/                   # Cryptographic keys (gitignored)
+```
+
+### Code Quality
+
+```bash
+# Format code
+black server/
+
+# Lint
+ruff check server/
+
+# Type check
+mypy server/
+```
+
+---
+
+## 📚 Related Documentation
+
+- [ADR-0001: License Signing Algorithm](/docs/adr/ADR-0001-license-signing.md)
+- [POC Documentation](/poc/README.md)
+- [FastAPI Documentation](https://fastapi.tiangolo.com/)
+- [SQLAlchemy 2.0 Documentation](https://docs.sqlalchemy.org/en/20/)
+
+---
+
+## 🆘 Troubleshooting
+
+### Common Issues
+
+**Error: "Private key not found"**
+```bash
+# Generate keys first
+python scripts/generate_keys.py
+```
+
+**Error: "Connection refused" (database)**
+```bash
+# Check PostgreSQL is running
+docker-compose ps
+
+# Check connection string
+echo $DATABASE_URL
+```
+
+**Error: "Invalid API Key"**
+```bash
+# API authentication not implemented yet
+# Will be added in next release
+```
+
+---
+
+## 📝 License
+
+Proprietary - Business Solutions For Africa (BIZ4A)  
+© 2026 BIZ4A - All rights reserved.
+
+---
+
+## 👥 Maintainers
+
+**BIZ4A Technical Team**  
 Digital Transformation & Enterprise Solutions
 
-© BIZ4A – All rights reserved.
+For support: tech@biz4a.com
+
+---
+
+**Version:** 1.0.0  
+**Last Updated:** 2026-02-03
