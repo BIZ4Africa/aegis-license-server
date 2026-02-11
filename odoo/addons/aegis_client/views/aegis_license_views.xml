@@ -1,0 +1,53 @@
+<odoo>
+    <record id="view_aegis_license_tree" model="ir.ui.view">
+        <field name="name">aegis.license.tree</field>
+        <field name="model">aegis.license</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="module_name"/>
+                <field name="state"/>
+                <field name="license_type"/>
+                <field name="expires_at"/>
+                <field name="last_verified_at"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_aegis_license_form" model="ir.ui.view">
+        <field name="name">aegis.license.form</field>
+        <field name="model">aegis.license</field>
+        <field name="arch" type="xml">
+            <form string="AEGIS License">
+                <header>
+                    <button name="action_verify" type="object" string="Verify" class="btn-primary"/>
+                    <field name="state" widget="statusbar" statusbar_visible="unknown,valid,invalid"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="module_name"/>
+                        <field name="license_token" widget="text"/>
+                    </group>
+                    <group string="Status" col="2">
+                        <field name="last_verified_at"/>
+                        <field name="last_error"/>
+                        <field name="license_type"/>
+                        <field name="issued_at"/>
+                        <field name="expires_at"/>
+                        <field name="is_bound"/>
+                        <field name="customer_name"/>
+                        <field name="allowed_versions"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_aegis_license" model="ir.actions.act_window">
+        <field name="name">AEGIS Licenses</field>
+        <field name="res_model">aegis.license</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_aegis_root" name="AEGIS" parent="base.menu_administration" sequence="90"/>
+    <menuitem id="menu_aegis_license" name="Licenses" parent="menu_aegis_root" action="action_aegis_license" sequence="10"/>
+</odoo>

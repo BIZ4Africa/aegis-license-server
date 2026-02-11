@@ -1,0 +1,36 @@
+<odoo>
+    <record id="view_aegis_hello_form" model="ir.ui.view">
+        <field name="name">aegis.hello.form</field>
+        <field name="model">aegis.hello</field>
+        <field name="arch" type="xml">
+            <form string="AEGIS Hello">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                    <footer>
+                        <button name="action_say_hello" type="object" string="Say Hello" class="btn-primary"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_aegis_hello_tree" model="ir.ui.view">
+        <field name="name">aegis.hello.tree</field>
+        <field name="model">aegis.hello</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_aegis_hello" model="ir.actions.act_window">
+        <field name="name">AEGIS Hello</field>
+        <field name="res_model">aegis.hello</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_aegis_hello" name="AEGIS Hello" parent="aegis_client.menu_aegis_root" action="action_aegis_hello" sequence="20"/>
+</odoo>

@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+aegis_license_admin,AEGIS License admin,model_aegis_license,base.group_system,1,1,1,1
+aegis_license_user,AEGIS License user,model_aegis_license,base.group_user,1,0,0,0

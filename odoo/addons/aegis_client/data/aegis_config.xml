@@ -1,0 +1,8 @@
+<odoo>
+    <data noupdate="1">
+        <record id="param_aegis_issuer" model="ir.config_parameter">
+            <field name="key">aegis.issuer</field>
+            <field name="value">https://license.biz4a.com</field>
+        </record>
+    </data>
+</odoo>
