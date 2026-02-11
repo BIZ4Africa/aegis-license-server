@@ -14,19 +14,20 @@ Built with **FastAPI**, **SQLAlchemy 2.0**, **PostgreSQL**, and **Ed25519** cryp
 - PostgreSQL 15+
 - Docker & Docker Compose (optional)
 
-### Option 1: Docker Compose (Recommended)
+### Option 1: Easy Deployment (Recommended)
 
 ```bash
-# 1. Generate signing keys
-python scripts/generate_keys.py --key-id aegis-2026-01
-
-# 2. Start services
-cd deploy/
-docker-compose up -d
-
-# 3. Check health
-curl http://localhost:8000/health
+# One command deployment
+./deploy/deploy.sh
 ```
+
+This helper will:
+- create `.env` from `.env.example` if missing
+- generate signing keys if missing
+- build and start Docker services
+- run a health check automatically
+
+For manual Docker usage, see `docs/deployment-runbook.md`.
 
 ### Option 2: Local Development
 
@@ -292,22 +293,19 @@ pytest tests/test_licenses.py -v
 ### Docker Production
 
 ```bash
-# Build image
-docker build -f deploy/Dockerfile -t aegis-server:1.0 .
+# Deploy complete stack (API + PostgreSQL)
+./deploy/deploy.sh
 
-# Run container
-docker run -d \
-  --name aegis-server \
-  -p 8000:8000 \
-  -e DATABASE_URL="postgresql+asyncpg://..." \
-  -e API_SECRET_KEY="..." \
-  -v /secure/keys:/app/keys:ro \
-  aegis-server:1.0
+# Or manually
+docker compose -f deploy/docker-compose.prod.yml --env-file .env up -d --build
 ```
+
+Detailed procedures (operations, upgrades, troubleshooting):
+- `docs/deployment-runbook.md`
 
 ### Kubernetes
 
-See `deploy/kubernetes/` for manifests (TODO).
+Not yet provided in this phase.
 
 ---
 

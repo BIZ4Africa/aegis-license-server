@@ -1,0 +1,61 @@
+# AEGIS License Server - Production Docker Compose
+# Usage: docker compose -f deploy/docker-compose.prod.yml --env-file .env up -d
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: aegis-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-aegis}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-aegis}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aegis} -d ${POSTGRES_DB:-aegis}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aegis-network
+
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: aegis-api
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-aegis}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-aegis}
+      HOST: 0.0.0.0
+      PORT: 8000
+      ENVIRONMENT: production
+      DEBUG: "false"
+      RELOAD: "false"
+      LOG_FORMAT: json
+    volumes:
+      - ../keys:/app/keys:ro
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks:
+      - aegis-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  aegis-network:
+    driver: bridge

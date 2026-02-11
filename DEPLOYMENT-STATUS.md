@@ -32,13 +32,13 @@ The AEGIS License Server is **75% complete** for Phase 1. Core functionality is 
 - ✅ Proper relationships and constraints
 - ✅ Connection pooling and health checks
 
-#### 3. Deployment Infrastructure (95%)
+#### 3. Deployment Infrastructure (100%)
 - ✅ Multi-stage Dockerfile
 - ✅ docker-compose.yml with PostgreSQL + PgAdmin
 - ✅ Environment-based configuration
 - ✅ Structured logging (JSON/text)
 - ✅ Health checks
-- ⚠️ Missing: .env.example file
+- ✅ .env.example file with production-safe template
 
 #### 4. Key Management (70%)
 - ✅ Ed25519 key generation script
@@ -47,12 +47,12 @@ The AEGIS License Server is **75% complete** for Phase 1. Core functionality is 
 - ⚠️ Missing: Key encryption (passphrase protection)
 - ⚠️ Missing: KMS integration options
 
-#### 5. Documentation (90%)
+#### 5. Documentation (100%)
 - ✅ Comprehensive README (450+ lines)
 - ✅ Architecture Decision Records (ADR-0001)
 - ✅ Phase planning (PROCHAINES-ETAPES.md)
 - ✅ Inline code documentation
-- ⚠️ Missing: Deployment runbook
+- ✅ Deployment runbook (`docs/deployment-runbook.md`)
 
 ---
 
@@ -151,19 +151,15 @@ alembic upgrade head
 
 ---
 
-### 6. Missing .env.example ❌
+### 6. Missing .env.example ✅
 **Priority:** HIGH
-**Status:** Not created
-**Effort:** 30 minutes
+**Status:** Completed
 
-**Issue:**
-- No template for environment configuration
-- Deployment setup confusion
+**Implemented:**
+- `.env.example` committed with deployment variables
+- Required vs optional values are documented inline
+- Safe defaults provided for local development
 
-**Required:**
-- Create .env.example with all variables
-- Document required vs optional settings
-- Provide safe defaults for development
 
 ---
 
@@ -188,7 +184,7 @@ alembic upgrade head
 - [ ] **Create database migrations** (Issue #3)
 - [ ] **Write comprehensive tests** (Issue #2)
 - [ ] **Add rate limiting** (Issue #5)
-- [ ] **Create .env.example file** (Issue #6)
+- [x] **Create .env.example file** (Issue #6)
 - [ ] **Encrypt private keys** (Issue #4)
 
 ### Should-Have (Pre-Launch) - 0/5 Complete
