@@ -12,7 +12,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from ..database import get_db
-from ..models import License, Customer, LicenseStatus, AuditLog
+from ..dependencies import require_can_issue_licenses, require_can_revoke_licenses, verify_api_key
+from ..models import APIKey, License, Customer, LicenseStatus, AuditLog
 from ..schemas import (
     LicenseCreate,
     LicenseResponse,
@@ -34,6 +35,7 @@ logger = structlog.get_logger()
 async def issue_license(
     license_data: LicenseCreate,
     db: AsyncSession = Depends(get_db),
+    api_key: APIKey = Depends(require_can_issue_licenses),
 ):
     """
     Issue a new signed license.
@@ -137,6 +139,7 @@ async def issue_license(
 async def get_license(
     license_id: str,
     db: AsyncSession = Depends(get_db),
+    _: APIKey = Depends(verify_api_key),
 ):
     """Get a license by ID."""
     from uuid import UUID
@@ -174,6 +177,7 @@ async def list_licenses(
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(50, ge=1, le=100, description="Items per page"),
     db: AsyncSession = Depends(get_db),
+    _: APIKey = Depends(verify_api_key),
 ):
     """
     List licenses with filtering and pagination.
@@ -328,6 +332,7 @@ async def revoke_license(
     license_id: str,
     revoke_data: LicenseRevoke,
     db: AsyncSession = Depends(get_db),
+    api_key: APIKey = Depends(require_can_revoke_licenses),
 ):
     """
     Revoke a license.

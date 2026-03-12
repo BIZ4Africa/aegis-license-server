@@ -202,6 +202,42 @@ class InfoResponse(BaseModel):
     key_id: str
 
 
+# ===== API Key Schemas =====
+
+class APIKeyCreate(BaseModel):
+    """Schema for creating a new API key."""
+    name: str = Field(..., min_length=1, max_length=100, description="Friendly name for the API key")
+    description: Optional[str] = Field(None, description="Optional description")
+    can_issue_licenses: bool = Field(True, description="Permission to issue licenses")
+    can_revoke_licenses: bool = Field(False, description="Permission to revoke licenses")
+    can_view_customers: bool = Field(True, description="Permission to view customers")
+    expires_at: Optional[datetime] = Field(None, description="Optional expiration date")
+    created_by: Optional[str] = Field(None, max_length=100, description="Creator identifier")
+
+
+class APIKeyResponse(BaseModel):
+    """Schema for API key response (never includes the plain key)."""
+    id: int
+    name: str
+    description: Optional[str]
+    can_issue_licenses: bool
+    can_revoke_licenses: bool
+    can_view_customers: bool
+    is_active: bool
+    last_used_at: Optional[datetime]
+    usage_count: int
+    expires_at: Optional[datetime]
+    created_at: datetime
+    created_by: Optional[str]
+
+    model_config = {"from_attributes": True}
+
+
+class APIKeyCreateResponse(APIKeyResponse):
+    """Response when creating a new API key - includes the plain key (shown once only)."""
+    key: str = Field(..., description="Plain API key value — store securely, shown only once")
+
+
 # ===== Error Schemas =====
 
 class ErrorDetail(BaseModel):

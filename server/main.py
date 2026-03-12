@@ -100,12 +100,15 @@ async def add_request_id(request: Request, call_next):
     """Add unique request ID to each request."""
     import uuid
     request_id = str(uuid.uuid4())
-    
+
     # Bind request ID to structlog context
-    with structlog.contextvars.bind_contextvars(request_id=request_id):
+    structlog.contextvars.bind_contextvars(request_id=request_id)
+    try:
         response = await call_next(request)
-        response.headers["X-Request-ID"] = request_id
-        return response
+    finally:
+        structlog.contextvars.unbind_contextvars("request_id")
+    response.headers["X-Request-ID"] = request_id
+    return response
 
 
 # Logging middleware

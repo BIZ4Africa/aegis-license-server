@@ -8,7 +8,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
-from ..models import Customer
+from ..dependencies import require_can_view_customers, verify_api_key
+from ..models import APIKey, Customer
 from ..schemas import CustomerCreate, CustomerUpdate, CustomerResponse
 
 router = APIRouter()
@@ -18,6 +19,7 @@ router = APIRouter()
 async def create_customer(
     customer: CustomerCreate,
     db: AsyncSession = Depends(get_db),
+    _: APIKey = Depends(verify_api_key),
 ):
     """
     Create a new customer.
@@ -49,6 +51,7 @@ async def create_customer(
 async def get_customer(
     customer_id: str,
     db: AsyncSession = Depends(get_db),
+    _: APIKey = Depends(require_can_view_customers),
 ):
     """Get a customer by ID."""
     result = await db.execute(
@@ -71,6 +74,7 @@ async def list_customers(
     limit: int = 100,
     active_only: bool = False,
     db: AsyncSession = Depends(get_db),
+    _: APIKey = Depends(require_can_view_customers),
 ):
     """
     List all customers.
@@ -80,7 +84,7 @@ async def list_customers(
     query = select(Customer)
     
     if active_only:
-        query = query.where(Customer.is_active == True)
+        query = query.where(Customer.is_active.is_(True))
     
     query = query.offset(skip).limit(limit)
     
@@ -95,6 +99,7 @@ async def update_customer(
     customer_id: str,
     customer_update: CustomerUpdate,
     db: AsyncSession = Depends(get_db),
+    _: APIKey = Depends(verify_api_key),
 ):
     """Update a customer."""
     result = await db.execute(
@@ -123,6 +128,7 @@ async def update_customer(
 async def delete_customer(
     customer_id: str,
     db: AsyncSession = Depends(get_db),
+    _: APIKey = Depends(verify_api_key),
 ):
     """
     Delete a customer.
