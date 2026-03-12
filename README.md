@@ -98,8 +98,11 @@ API Documentation: http://localhost:8000/docs
 - `DELETE /api/v1/customers/{id}` - Delete customer
 
 **Admin:**
-- `GET /api/v1/admin/stats` - Server statistics
-- `GET /api/v1/admin/audit-logs` - Audit logs
+- `GET /api/v1/admin/stats` - Server statistics *(requires API key)*
+- `GET /api/v1/admin/audit-logs` - Audit logs *(requires API key)*
+- `POST /api/v1/admin/api-keys` - Create API key *(requires admin secret)*
+- `GET /api/v1/admin/api-keys` - List API keys *(requires admin secret)*
+- `DELETE /api/v1/admin/api-keys/{id}` - Revoke API key *(requires admin secret)*
 
 **System:**
 - `GET /health` - Health check
@@ -168,6 +171,96 @@ API Documentation: http://localhost:8000/docs
   "license_type": "perpetual"
 }
 ```
+
+---
+
+## 🔑 API Authentication
+
+All endpoints (except `/health`, `POST /api/v1/licenses/validate`, and `POST /api/v1/licenses/fingerprint`) require an `X-API-Key` header.
+
+### Authentication Flow
+
+```
+Client Request
+    │
+    ▼
+X-API-Key header present?  ──No──▶  422 Unprocessable Entity
+    │ Yes
+    ▼
+Key matches active DB record?  ──No──▶  401 Unauthorized
+    │ Yes
+    ▼
+Key is not expired?  ──No──▶  401 Unauthorized
+    │ Yes
+    ▼
+Key has required permission?  ──No──▶  403 Forbidden
+    │ Yes
+    ▼
+Request proceeds ✅
+```
+
+### Bootstrapping: Create Your First API Key
+
+Use the `API_SECRET_KEY` from your `.env` configuration as the admin token to create the first API key:
+
+```bash
+# Create a full-permissions API key (use API_SECRET_KEY as the X-API-Key)
+curl -X POST http://localhost:8000/api/v1/admin/api-keys \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_SECRET_KEY" \
+  -d '{
+    "name": "Production Key",
+    "can_issue_licenses": true,
+    "can_revoke_licenses": true,
+    "can_view_customers": true
+  }'
+```
+
+The response includes the plain API key — **store it securely, it is shown only once**:
+
+```json
+{
+  "id": 1,
+  "name": "Production Key",
+  "key": "aegis_...",
+  "can_issue_licenses": true,
+  "can_revoke_licenses": true,
+  "can_view_customers": true,
+  "is_active": true,
+  "usage_count": 0,
+  "created_at": "2026-03-01T00:00:00Z"
+}
+```
+
+### Permissions
+
+| Permission | Description | Required For |
+|-----------|-------------|-------------|
+| `can_issue_licenses` | Create new licenses | `POST /api/v1/licenses` |
+| `can_revoke_licenses` | Revoke licenses | `DELETE /api/v1/licenses/{id}/revoke` |
+| `can_view_customers` | Read customer data | `GET /api/v1/customers*` |
+
+All other protected endpoints require any valid API key (no specific permission needed).
+
+### API Key Management
+
+```bash
+# List all API keys (requires API_SECRET_KEY)
+curl -H "X-API-Key: YOUR_API_SECRET_KEY" \
+  http://localhost:8000/api/v1/admin/api-keys
+
+# Revoke an API key by ID (requires API_SECRET_KEY)
+curl -X DELETE \
+  -H "X-API-Key: YOUR_API_SECRET_KEY" \
+  http://localhost:8000/api/v1/admin/api-keys/1
+```
+
+### Security Notes
+
+- API keys are **bcrypt-hashed** in the database (plain values are never stored)
+- Keys support optional expiration dates
+- Usage tracking: `last_used_at` and `usage_count` are updated on each request
+- The `API_SECRET_KEY` is only used for key management (admin bootstrap), not stored in the database
 
 ---
 
@@ -278,7 +371,8 @@ pytest tests/test_licenses.py -v
 
 ### Production Checklist
 
-- [ ] Generate strong API secret key
+- [ ] Generate strong API secret key (`API_SECRET_KEY`)
+- [ ] Create initial API key via `POST /api/v1/admin/api-keys`
 - [ ] Configure secure database credentials
 - [ ] Set `ENVIRONMENT=production`
 - [ ] Set `DEBUG=false`
@@ -363,6 +457,7 @@ aegis-server/
 │   ├── models.py           # SQLAlchemy models
 │   ├── schemas.py          # Pydantic schemas
 │   ├── services.py         # Business logic
+│   ├── dependencies.py     # Auth dependencies (API key verification)
 │   └── routers/            # API routes
 │       ├── health.py
 │       ├── licenses.py
@@ -422,8 +517,11 @@ echo $DATABASE_URL
 
 **Error: "Invalid API Key"**
 ```bash
-# API authentication not implemented yet
-# Will be added in next release
+# Create an API key first using the API_SECRET_KEY from .env
+curl -X POST http://localhost:8000/api/v1/admin/api-keys \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: $API_SECRET_KEY" \
+  -d '{"name": "My Key", "can_issue_licenses": true}'
 ```
 
 ---

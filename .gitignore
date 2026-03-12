@@ -7,6 +7,9 @@ poc/keys/*.private.pem
 # Clés de test (OK de committer les publiques)
 # poc/keys/*.public.pem  # Commenté = on peut committer les clés publiques de demo
 
+# Keys directory (auto-generated, not for version control)
+keys/
+
 # Environnements virtuels Python
 poc/venv/
 poc/.venv/
@@ -20,4 +23,12 @@ poc/*.pyc
 poc/.pytest_cache/
 poc/.coverage
 poc/htmlcov/
+
+# Server cache and test artifacts
+server/__pycache__/
+server/routers/__pycache__/
+__pycache__/
+.pytest_cache/
+.coverage
+htmlcov/
 
